@@ -1,0 +1,68 @@
+package main
+
+import (
+	"fmt"
+	"math"
+	"strconv"
+	"time"
+)
+
+func canTakePersonalLeave(publicHolidays int, joinDate, plannedLeaveDate time.Time, leaveDuration int) (bool, string) {
+	const (
+		officeLeaveDays     = 14
+		maxConsecutiveLeave = 3
+		probationPeriod     = 180
+	)
+
+	personalLeaveDays := officeLeaveDays - publicHolidays
+
+	probationEndDate := joinDate.AddDate(0, 0, probationPeriod)
+
+	if plannedLeaveDate.Before(probationEndDate) {
+		return false, "Karena belum 180 hari sejak tanggal join karyawan"
+	}
+
+	// Hitung jumlah hari tersisa di tahun ini setelah probation berakhir
+	endOfYear := time.Date(joinDate.Year(), 12, 31, 0, 0, 0, 0, time.UTC)
+	daysAfterProbation := int(endOfYear.Sub(probationEndDate).Hours() / 24)
+
+	// Hitung kuota cuti untuk karyawan baru
+	newEmployeeLeaveQuota := int(math.Floor(float64(daysAfterProbation) / 365 * float64(personalLeaveDays)))
+
+	// Cek jika durasi cuti melebihi kuota yang tersedia
+	if leaveDuration > newEmployeeLeaveQuota {
+		return false, fmt.Sprintf("Karena hanya boleh mengambil %d hari cuti", newEmployeeLeaveQuota)
+	}
+
+	// Cek jika durasi cuti lebih dari batas maksimal berturut-turut
+	if leaveDuration > maxConsecutiveLeave {
+		return false, fmt.Sprintf("Durasi cuti melebihi batas maksimal berturut-turut (%d hari)", maxConsecutiveLeave)
+	}
+
+	return true, "Cuti dapat diambil"
+}
+
+func main() {
+	var publicHolidaysStr, joinDateStr, plannedLeaveDateStr, leaveDurationStr string
+
+	fmt.Print("Masukkan jumlah cuti bersama: ")
+	fmt.Scanln(&publicHolidaysStr)
+	publicHolidays, _ := strconv.Atoi(publicHolidaysStr)
+
+	fmt.Print("Masukkan tanggal join karyawan (format YYYY-MM-DD): ")
+	fmt.Scanln(&joinDateStr)
+	joinDate, _ := time.Parse("2006-01-02", joinDateStr)
+
+	fmt.Print("Masukkan tanggal rencana cuti (format YYYY-MM-DD): ")
+	fmt.Scanln(&plannedLeaveDateStr)
+	plannedLeaveDate, _ := time.Parse("2006-01-02", plannedLeaveDateStr)
+
+	fmt.Print("Masukkan durasi cuti (hari): ")
+	fmt.Scanln(&leaveDurationStr)
+	leaveDuration, _ := strconv.Atoi(leaveDurationStr)
+
+	canLeave, reason := canTakePersonalLeave(publicHolidays, joinDate, plannedLeaveDate, leaveDuration)
+	fmt.Println("Can take leave:", canLeave)
+	fmt.Println("Alasan:", reason)
+}
+

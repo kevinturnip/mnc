@@ -1,0 +1,63 @@
+package main
+
+import (
+	"fmt"
+)
+
+func isMatchingPair(open, close rune) bool {
+	switch open {
+	case '<':
+		return close == '>'
+	case '{':
+		return close == '}'
+	case '[':
+		return close == ']'
+	default:
+		return false
+	}
+}
+
+func validateString(input string) bool {
+	if len(input) < 1 || len(input) > 4096 {
+		return false
+	}
+
+	var stack []rune
+
+	for _, char := range input {
+		switch char {
+		case '<', '{', '[':
+			stack = append(stack, char)
+
+		case '>', '}', ']':
+			if len(stack) == 0 {
+				return false
+			}
+
+			lastOpen := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+
+			if !isMatchingPair(lastOpen, char) {
+				return false
+			}
+
+		default:
+			return false
+		}
+	}
+
+	return len(stack) == 0
+}
+
+func main() {
+	var input string
+	fmt.Print("Masukkan string: ")
+	fmt.Scan(&input)
+
+	if validateString(input) {
+		fmt.Println("TRUE")
+	} else {
+		fmt.Println("FALSE")
+	}
+}
+

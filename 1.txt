@@ -1,0 +1,38 @@
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func FindMatch(N int, inputStrings []string) interface{} {
+	for i := 0; i < N; i++ {
+		for j := i + 1; j < N; j++ {
+			if strings.ToLower(inputStrings[i]) == strings.ToLower(inputStrings[j]) {
+				return []int{i + 1, j + 1}
+			}
+		}
+	}
+	return false
+}
+
+func main() {
+	var N int
+	fmt.Print("Masukkan jumlah string: ")
+	fmt.Scan(&N)
+
+	inputStrings := make([]string, N)
+	for i := 0; i < N; i++ {
+		fmt.Printf("Masukkan string ke-%d: ", i+1)
+		fmt.Scan(&inputStrings[i])
+	}
+
+	result := FindMatch(N, inputStrings)
+
+	if result == false {
+		fmt.Println("Tidak ada string yang cocok.")
+	} else {
+		fmt.Printf("String yang cocok ditemukan pada urutan ke: %v\n", result)
+	}
+}
+

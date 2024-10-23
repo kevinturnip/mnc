@@ -1,0 +1,62 @@
+package main
+
+import (
+    "fmt"
+    "math"
+)
+
+func calculateChange(totalBelanja, uangDibayarkan int) interface{} {
+
+    pecahan := []int{100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100}
+
+    if uangDibayarkan < totalBelanja {
+        return false
+    }
+
+    kembalian := math.Floor(float64(uangDibayarkan-totalBelanja)/100) * 100
+
+    detailKembalian := make(map[int]int)
+
+    for _, p := range pecahan {
+        if kembalian >= float64(p) {
+            jumlah := int(kembalian) / p
+            kembalian -= float64(jumlah * p)
+            detailKembalian[p] = jumlah
+        }
+    }
+
+    return detailKembalian
+}
+
+func main() {
+
+    var totalBelanja, uangDibayarkan int
+    fmt.Print("Masukkan total belanja: ")
+    fmt.Scan(&totalBelanja)
+    fmt.Print("Masukkan jumlah uang yang dibayarkan: ")
+    fmt.Scan(&uangDibayarkan)
+
+    result := calculateChange(totalBelanja, uangDibayarkan)
+
+    if result == false {
+        fmt.Println("Jumlah uang yang dibayarkan kurang dari total belanja.")
+    } else {
+        kembalianAsli := uangDibayarkan - totalBelanja
+        fmt.Printf("Total kembalian: Rp %d\n", kembalianAsli)
+        kembalian := int(math.Floor(float64(kembalianAsli)/100) * 100)
+        fmt.Printf("Total kembalian dibulatkan: Rp %d\n", kembalian)
+        fmt.Println("Detail kembalian:")
+        for pecahan, jumlah := range result.(map[int]int) {
+            if jumlah > 0 {
+                if pecahan < 201 {
+                    fmt.Printf("%d koin %d\n", jumlah, pecahan)
+                } else {
+                    fmt.Printf("%d lembar %d\n", jumlah, pecahan)
+                }
+
+            }
+        }
+    }
+}
+
+
